@@ -22,7 +22,7 @@ def main():
     clock = p.time.Clock()
     screen.fill(p.Color("white"))
     gs = ChessEngine.GameState()
-    validmoves = gs.getvalidmoves()
+    validmoves = gs.get_valid_moves()
     movemade = False
     LoadImages()
     running = True
@@ -47,7 +47,7 @@ def main():
                     move = ChessEngine.Move(PlayerClicks[0], PlayerClicks[1], gs.board)
                     print(move.getchessnotation())
                     if move in validmoves:
-                        gs.makemove(move)
+                        gs.make_move(move)
                         movemade = True
                         sqSelected = ()
                         PlayerClicks = []
@@ -60,7 +60,7 @@ def main():
                     movemade = True
 
         if movemade:
-            validmoves = gs.getvalidmoves()
+            validmoves = gs.get_valid_moves()
             movemade = False
 
         drawGameState(screen, gs)
