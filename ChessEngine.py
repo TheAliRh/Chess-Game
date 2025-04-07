@@ -1,5 +1,4 @@
 import pygame as p
-import ChessEngine
 
 
 class GameState:
@@ -620,7 +619,7 @@ class CastleRights:
 
 class Move:
     # Maps keys to values
-    rankstorows = {
+    ranks_to_rows = {
         "1": 7,
         "2": 6,
         "3": 5,
@@ -630,8 +629,8 @@ class Move:
         "7": 1,
         "8": 0,
     }
-    rowstoranks = {v: k for k, v in rankstorows.items()}
-    filestocols = {
+    rows_to_ranks = {v: k for k, v in ranks_to_rows.items()}
+    files_to_cols = {
         "h": 7,
         "g": 6,
         "f": 5,
@@ -641,7 +640,7 @@ class Move:
         "b": 1,
         "a": 0,
     }
-    colstofiles = {v: k for k, v in filestocols.items()}
+    cols_to_files = {v: k for k, v in files_to_cols.items()}
 
     def __init__(
         self,
@@ -688,12 +687,12 @@ class Move:
 
         return False
 
-    def getchessnotation(self):
+    def get_chess_notation(self):
 
-        return self.getrankfile(self.start_row, self.start_col) + self.getrankfile(
+        return self.get_rank_file(self.start_row, self.start_col) + self.get_rank_file(
             self.end_row, self.end_col
         )
 
-    def getrankfile(self, r, c):
+    def get_rank_file(self, r, c):
 
-        return self.colstofiles[c] + self.rowstoranks[r]
+        return self.cols_to_files[c] + self.rows_to_ranks[r]
