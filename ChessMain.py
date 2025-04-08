@@ -34,7 +34,7 @@ def main():
     player_clicks = []
     game_over = False
     player_one = True
-    player_two = True
+    player_two = False
     while running:
         human_turn = (gs.white_to_move and player_one) or (
             not gs.white_to_move and player_two
@@ -85,7 +85,9 @@ def main():
 
         # AI move finder
         if not game_over and not human_turn:
-            ai_move = SmartMoveFinder.find_random_moves(valid_moves)
+            ai_move = SmartMoveFinder.find_best_moves(gs, valid_moves)
+            if ai_move is None:
+                ai_move = SmartMoveFinder.find_random_moves(valid_moves)
             gs.make_move(ai_move)
             move_made = True
             animate = True
@@ -97,13 +99,13 @@ def main():
             move_made = False
             animate = False
 
-        if gs.check_mate:
+        if gs.checkmate:
             game_over = True
             if gs.white_to_move:
                 draw_text(screen, "Black wins by checkmate")
             else:
                 draw_text(screen, "White wins by checkmate")
-        elif gs.stale_mate:
+        elif gs.stalemate:
             game_over = True
             draw_text(screen, "Stalemate")
 

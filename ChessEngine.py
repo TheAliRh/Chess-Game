@@ -32,8 +32,8 @@ class GameState:
         self.in_check = False
         self.pins = []
         self.checks = []
-        self.check_mate = False
-        self.stale_mate = False
+        self.checkmate = False
+        self.stalemate = False
         self.en_passant_possible = ()  # Square where en passant capture can happen
         # Castling rights
         self.white_castle_king_side = True
@@ -261,16 +261,16 @@ class GameState:
 
             if self.in_check:  # Checking for check-mate
 
-                self.check_mate = True
+                self.checkmate = True
 
             else:  # Checking for stale-mate
 
-                self.stale_mate = True
+                self.stalemate = True
 
         else:
 
-            self.check_mate = False
-            self.stale_mate = False
+            self.checkmate = False
+            self.stalemate = False
 
         return moves
 
