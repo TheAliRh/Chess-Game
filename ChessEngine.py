@@ -181,6 +181,9 @@ class GameState:
                     move.end_col + 1
                 ] = "  "  # Empty the space where the rook was
 
+        self.checkmate = False
+        self.stalemate = False
+
     """
     All moves with considering checks
     """
