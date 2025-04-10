@@ -4,7 +4,7 @@ import ChessEngine
 piece_score = {"K": 0, "Q": 9, "R": 5, "B": 3, "N": 3, "p": 1}
 checkmate = 1000
 stalemate = 0
-depth_total = 3
+depth_total = 2
 
 
 gs = ChessEngine.GameState()
@@ -62,10 +62,18 @@ Helper method to make first recursive call
 
 
 def find_best_move_min_max(gs, valid_moves):
-    global next_moves
+    global next_move
     next_moves = None
-    find_move_min_max(gs, valid_moves, depth_total, gs.white_to_move)
-    return next_moves
+    # find_move_min_max(gs, valid_moves, depth_total, gs.white_to_move)
+    find_move_negamax_alphabeta(
+        gs,
+        valid_moves,
+        depth_total,
+        -checkmate,
+        checkmate,
+        1 if gs.white_to_move else -1,
+    )
+    return next_move
 
 
 def find_move_min_max(gs, valid_moves, depth, white_to_move):
@@ -97,8 +105,50 @@ def find_move_min_max(gs, valid_moves, depth, white_to_move):
         return min_score
 
 
+def find_move_negamax(gs, valid_moves, depth, turnmultiplier):
+    global next_move
+    if depth == 0:
+        return turnmultiplier * score_board(gs)
+
+    max_score = -checkmate
+    for move in valid_moves:
+        gs.make_move(move)
+        next_moves = gs.get_valid_moves()
+        score = -find_move_negamax(gs, next_moves, depth - 1, -turnmultiplier)
+        if score > max_score:
+            max_score = score
+            if depth == depth_total:
+                next_move = move
+        gs.undo_move()
+
+
+def find_move_negamax_alphabeta(gs, valid_moves, depth, alpha, beta, turnmultiplier):
+    global next_move
+    if depth == 0:
+        return turnmultiplier * score_board(gs)
+
+    # Move ordering -
+    max_score = -checkmate
+    for move in valid_moves:
+        gs.make_move(move)
+        next_moves = gs.get_valid_moves()
+        score = -find_move_negamax_alphabeta(
+            gs, next_moves, depth - 1, -beta, -alpha, -turnmultiplier
+        )
+        if score > max_score:
+            max_score = score
+            if depth == depth_total:
+                next_move = move
+        gs.undo_move()
+        if max_score > alpha:
+            alpha = max_score
+        if alpha >= beta:
+            break
+    return max_score
+
+
 def score_board(gs):
-    if gs.checkmat:
+    if gs.checkmate:
         if gs.white_to_move:
             return -checkmate
         else:
