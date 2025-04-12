@@ -170,89 +170,57 @@ class GameState:
     """
 
     def get_valid_moves(self):
-
-        moves = []
         self.in_check, self.pins, self.checks = self.checking_pins_and_checks()
+        moves = []
 
-        if self.white_to_move:
-
-            king_row = self.white_king_location[0]
-            king_col = self.white_king_location[1]
-
-        else:
-
-            king_row = self.black_king_location[0]
-            king_col = self.black_king_location[1]
+        king_row, king_col = (
+            self.white_king_location if self.white_to_move else self.black_king_location
+        )
 
         if self.in_check:
-
-            if len(self.checks) == 1:  # Only 1 check, Block the check or move the king
-
+            if len(self.checks) == 1:
+                # Single check: block it, capture checker, or move king
                 moves = self.get_all_possible_moves()
-                # To block a check you must move a piece in between the enemy piece and the king
-                check = self.checks[0]  # Check information
-                check_row = check[0]
-                check_col = check[1]
-                piece_checking = self.board[check_row][
-                    check_col
-                ]  # Enemy piece causing the check
-                valid_squares = []  # Squares that pieces can move to
+                check_row, check_col, check_dir_row, check_dir_col = self.checks[0]
+                piece_checking = self.board[check_row][check_col]
 
-                # If knight , Must capture the knight or move the king, But other pieces can be blocked
-                if piece_checking[1] == "N":
+                valid_squares = (
+                    [(check_row, check_col)]
+                    if piece_checking[1] == "N"
+                    else [
+                        (king_row + check_dir_row * i, king_col + check_dir_col * i)
+                        for i in range(1, 8)
+                        if 0 <= king_row + check_dir_row * i < 8
+                        and 0 <= king_col + check_dir_col * i < 8
+                    ]
+                )
 
-                    valid_squares = [(check_row, check_col)]
+                # Stop adding squares once reaching the checking piece
+                for i, sq in enumerate(valid_squares):
+                    if sq == (check_row, check_col):
+                        valid_squares = valid_squares[: i + 1]
+                        break
 
-                else:
-
-                    for i in range(1, 8):
-
-                        valid_square = (
-                            king_row + check[2] * i,
-                            king_col + check[3] * i,
-                        )  # Check[2] and check[3] are check directions
-                        valid_squares.append(valid_square)
-
-                        if (
-                            valid_square[0] == check_row
-                            and valid_square[1] == check_col
-                        ):  # Once you get to piece end checks
-
-                            break
-
-                # Get ride of any moves that don't block check or move king
-                for i in range(len(moves) - 1, -1, -1):  # Going backwards when removing
-
-                    if (
-                        moves[i].piece_moved[1] != "K"
-                    ):  # Move doesn't move the king so it must block check or capture piece
-
-                        if (
-                            not (moves[i].end_row, moves[i].end_col) in valid_squares
-                        ):  # Moves doesn't block check or capture piece
-
-                            moves.remove(moves[i])
-
-            else:  # Double check, King has to move
-
+                # Filter moves: only king moves or those that block/check
+                moves = [
+                    move
+                    for move in moves
+                    if move.piece_moved[1] == "K"
+                    or (move.end_row, move.end_col) in valid_squares
+                ]
+            else:
+                # Double check: only king moves allowed
                 self.get_kings_move(king_row, king_col, moves)
-
-        else:  # Not in check so all moves are fine
-
+        else:
             moves = self.get_all_possible_moves()
 
-        if len(moves) == 0:
-
-            if self.in_check:  # Checking for check-mate
-
+        # Update game state based on result
+        if not moves:
+            if self.in_check:
                 self.checkmate = True
-
-            else:  # Checking for stale-mate
-
+            else:
                 self.stalemate = True
-
         else:
-
             self.checkmate = False
             self.stalemate = False
 
