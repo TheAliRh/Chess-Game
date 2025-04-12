@@ -232,15 +232,14 @@ class GameState:
 
     def get_all_possible_moves(self):
         moves = []
-        for r in range(len(self.board)):
-            for c in range(len(self.board[r])):
-                turn = self.board[r][c][0]
-                if (turn == "w" and self.white_to_move) or (
-                    turn == "b" and not self.white_to_move
-                ):
-                    piece = self.board[r][c][1]
-                    self.move_functions[piece](r, c, moves)
-
+        is_white_turn = self.white_to_move
+        for row_idx, row in enumerate(self.board):
+            for col_idx, square in enumerate(row):
+                if not square:  # Skip empty squares
+                    continue
+                color, piece = square[0], square[1]
+                if (color == "w") == is_white_turn:
+                    self.move_functions[piece](row_idx, col_idx, moves)
         return moves
 
     """
