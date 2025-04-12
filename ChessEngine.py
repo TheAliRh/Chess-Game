@@ -92,15 +92,15 @@ class GameState:
             self.board[er][ec] = piece[0] + promoted_piece
 
         # Update castling rights
-        self.update_castle_rights(move)
-        self.castle_rights_log.append(
-            CastleRights(
-                self.white_castle_king_side,
-                self.black_castle_king_side,
-                self.white_castle_queen_side,
-                self.black_castle_queen_side,
-            )
-        )
+        # self.update_castle_rights(move)
+        # self.castle_rights_log.append(
+        #     CastleRights(
+        #         self.white_castle_king_side,
+        #         self.black_castle_king_side,
+        #         self.white_castle_queen_side,
+        #         self.black_castle_queen_side,
+        #     )
+        # )
 
         # Handle castling move
         if move.castle:
@@ -235,7 +235,7 @@ class GameState:
         is_white_turn = self.white_to_move
         for row_idx, row in enumerate(self.board):
             for col_idx, square in enumerate(row):
-                if not square:  # Skip empty squares
+                if square == "  ":  # Skip empty squares
                     continue
                 color, piece = square[0], square[1]
                 if (color == "w") == is_white_turn:

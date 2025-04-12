@@ -34,7 +34,7 @@ def main():
     player_clicks = []
     game_over = False
     player_one = True
-    player_two = False
+    player_two = True
     while running:
         human_turn = (gs.white_to_move and player_one) or (
             not gs.white_to_move and player_two
@@ -59,8 +59,9 @@ def main():
                         move = ChessEngine.Move(
                             player_clicks[0], player_clicks[1], gs.board
                         )
-                        print(move.get_chess_notation())
+                        # print(move.get_chess_notation())
                         if move in valid_moves:
+                            print(True if move.en_passant == True else False)
                             gs.make_move(move)
                             move_made = True
                             animate = True
