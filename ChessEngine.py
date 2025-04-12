@@ -116,67 +116,51 @@ class GameState:
     """
 
     def undo_move(self):
+        if not self.move_log:
+            return
 
-        if len(self.move_log) != 0:
+        move = self.move_log.pop()
+        self.board[move.start_row][move.start_col] = move.piece_moved
+        self.board[move.end_row][move.end_col] = move.piece_captured
+        self.white_to_move = not self.white_to_move
 
-            move = self.move_log.pop()
-            self.board[move.start_row][
-                move.start_col
-            ] = move.piece_moved  # Put piece on the starting square
-            self.board[move.end_row][
-                move.end_col
-            ] = move.piece_captured  # Put back the captured piece
-            self.white_to_move = not self.white_to_move  # Switching turns
-
-        # Update king's position
+        # Update king position
         if move.piece_moved == "wK":
-
             self.white_king_location = (move.start_row, move.start_col)
-
         elif move.piece_moved == "bK":
-
             self.black_king_location = (move.start_row, move.start_col)
 
-        # Undo en-passant
+        # Undo en passant
         if move.en_passant:
+            self.board[move.end_row][move.end_col] = "  "
+            self.board[move.start_row][move.end_col] = move.piece_captured
 
-            self.board[move.end_row][
-                move.end_col
-            ] = "  "  # Remove the pawn that was added in the wrong square
-            self.board[move.start_row][
-                move.end_col
-            ] = (
-                move.piece_captured
-            )  # Puts the pawn back on the correct square it was captured from
-
+        # Restore en passant rights
         self.en_passant_possible_log.pop()
-        self.en_passant_possible = self.en_passant_possible_log[-1]
+        self.en_passant_possible = (
+            self.en_passant_possible_log[-1] if self.en_passant_possible_log else ()
+        )
 
-        # Give back castle rights if move took them away
-        # self.castle_rights_log.pop()  # Remove last moves updates
-        # new_rights = self.castle_rights_log[-1]
-        # self.current_castling_right = CastleRights(
-        #     new_rights.wks, new_rights.bks, new_rights.wqs, new_rights.bqs
-        # )
+        # Restore castling rights
+        self.castle_rights_log.pop()
+        if self.castle_rights_log:
+            rights = self.castle_rights_log[-1]
+            self.current_castling_right = CastleRights(
+                rights.wks, rights.bks, rights.wqs, rights.bqs
+            )
 
-        # Undo castle
+        # Undo castling move
         if move.castle:
-            if move.end_col - move.start_col == 2:  # King side
-
+            if move.end_col - move.start_col == 2:  # Kingside
                 self.board[move.end_row][move.end_col + 1] = self.board[move.end_row][
                     move.end_col - 1
-                ]  # Move the rook
-                self.board[move.end_row][
-                    move.end_col - 1
-                ] = "  "  # Empty the space where the rook was
-
-            else:  # Queen side
+                ]
+                self.board[move.end_row][move.end_col - 1] = "  "
+            else:  # Queenside
                 self.board[move.end_row][move.end_col - 2] = self.board[move.end_row][
                     move.end_col + 1
-                ]  # Move the rook
-                self.board[move.end_row][
-                    move.end_col + 1
-                ] = "  "  # Empty the space where the rook was
+                ]
+                self.board[move.end_row][move.end_col + 1] = "  "
 
         self.checkmate = False
         self.stalemate = False
