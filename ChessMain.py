@@ -34,7 +34,7 @@ def main():
     player_clicks = []
     game_over = False
     player_one = True
-    player_two = True
+    player_two = False
     while running:
         human_turn = (gs.white_to_move and player_one) or (
             not gs.white_to_move and player_two
@@ -79,7 +79,7 @@ def main():
 
                 if e.key == p.K_r:  # Reset the game when 'r' is pressed
                     gs = ChessEngine.GameState()
-                    valid_moves = gs.get_valid_moves
+                    valid_moves = gs.get_valid_moves()
                     sq_selected = ()
                     player_clicks = []
                     move_made = False

@@ -47,15 +47,15 @@ class GameState:
         self.en_passant_possible = ()  # Square where en-passant capture can happen
         self.en_passant_possible_log = [self.en_passant_possible]
         # Castling rights
-        self.current_castling_right = CastleRights(True, True, True, True)
-        self.castle_rights_log = [
-            CastleRights(
-                self.current_castling_right.wks,
-                self.current_castling_right.bks,
-                self.current_castling_right.wqs,
-                self.current_castling_right.bqs,
-            )
-        ]
+        # self.current_castling_right = CastleRights(True, True, True, True)
+        # self.castle_rights_log = [
+        #     CastleRights(
+        #         self.current_castling_right.wks,
+        #         self.current_castling_right.bks,
+        #         self.current_castling_right.wqs,
+        #         self.current_castling_right.bqs,
+        #     )
+        # ]
 
     """
     Make the move that is passed as a parameter
@@ -142,12 +142,12 @@ class GameState:
         )
 
         # Restore castling rights
-        self.castle_rights_log.pop()
-        if self.castle_rights_log:
-            rights = self.castle_rights_log[-1]
-            self.current_castling_right = CastleRights(
-                rights.wks, rights.bks, rights.wqs, rights.bqs
-            )
+        # self.castle_rights_log.pop()
+        # if self.castle_rights_log:
+        #     rights = self.castle_rights_log[-1]
+        #     self.current_castling_right = CastleRights(
+        #         rights.wks, rights.bks, rights.wqs, rights.bqs
+        #     )
 
         # Undo castling move
         if move.castle:
@@ -298,7 +298,7 @@ class GameState:
                     moves.append(Move((r, c), (r + 2 * move_amount, c), self.board))
 
         if c - 1 >= 0:  # Capture to left
-            if not piece_pinned or pin_direction(move_amount, 1):
+            if not piece_pinned or pin_direction == (move_amount, 1):
 
                 if self.board[r + move_amount][c - 1][0] == enemy_color:
 
@@ -327,7 +327,7 @@ class GameState:
                     )
 
         if c + 1 <= 7:  # Capture to right
-            if not piece_pinned or pin_direction(move_amount, -1):
+            if not piece_pinned or pin_direction == (move_amount, -1):
 
                 if self.board[r + move_amount][c + 1][0] == enemy_color:
 
