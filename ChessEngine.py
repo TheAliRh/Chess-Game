@@ -62,36 +62,35 @@ class GameState:
     """
 
     def make_move(self, move):
-        self.board[move.end_row][move.end_col] = move.piece_moved
-        self.board[move.start_row][move.start_col] = "  "
-        self.move_log.append(move)  # Logs the move
-        self.white_to_move = not self.white_to_move  # Switching turns
-        # Update king's position
-        if move.piece_moved == "wK":
-            self.white_king_location = (move.end_row, move.end_col)
-        elif move.piece_moved == "bK":
-            self.black_king_location = (move.end_row, move.end_col)
-        # If pawn moves twice, Next move can capture en-passant
-        if move.piece_moved[1] == "p" and abs(move.start_row - move.end_row) == 2:
+        sr, sc, er, ec = move.start_row, move.start_col, move.end_row, move.end_col
+        piece = move.piece_moved
+        self.board[er][ec] = piece
+        self.board[sr][sc] = "  "
+        self.move_log.append(move)
+        self.white_to_move = not self.white_to_move
 
-            self.en_passant_possible = (
-                (move.end_row + move.start_row) // 2,
-                move.end_col,
-            )
-            print(self.en_passant_possible)
+        # Update king's position
+        if piece == "wK":
+            self.white_king_location = (er, ec)
+        elif piece == "bK":
+            self.black_king_location = (er, ec)
+
+        # Handle en-passant target square
+        if piece[1] == "p" and abs(sr - er) == 2:
+            self.en_passant_possible = ((sr + er) // 2, ec)
         else:
             self.en_passant_possible = ()
-        # If en-passant move, Must update the board to capture the pawn
-        print(move.en_passant)
+        self.en_passant_possible_log.append(self.en_passant_possible)
+
+        # Handle en-passant capture
         if move.en_passant:
-            self.board[move.start_row][move.end_col] = "  "
-        # If pawn promotion move happened, Change piece
+            self.board[sr][ec] = "  "
+
+        # Handle pawn promotion
         if move.pawn_promotion:
-            # promotioned_piece = input("Promote to Q, R, B or N:")
-            promotioned_piece = "Q"
-            self.board[move.end_row][move.end_col] = (
-                move.piece_moved[0] + promotioned_piece
-            )
+            promoted_piece = "Q"  # or get user input
+            self.board[er][ec] = piece[0] + promoted_piece
+
         # Update castling rights
         self.update_castle_rights(move)
         self.castle_rights_log.append(
@@ -103,24 +102,14 @@ class GameState:
             )
         )
 
-        self.en_passant_possible_log.append(self.en_passant_possible)
-
-        # Castle moves
+        # Handle castling move
         if move.castle:
-            if move.end_col - move.start_col == 2:  # King side castling
-                self.board[move.end_row][move.end_col - 1] = self.board[move.end_row][
-                    move.end_col + 1
-                ]  # Move the rook
-                self.board[move.end_row][
-                    move.end_col + 1
-                ] = "  "  # Empty space where the rook was
-            else:  # Queen side castling
-                self.board[move.end_row][move.end_col + 1] = self.board[move.end_row][
-                    move.end_col + 1
-                ]  # Move the rook
-                self.board[move.end_row][
-                    move.end_col - 2
-                ] = "  "  # Empty space where the rook was
+            if ec - sc == 2:  # King side
+                self.board[er][ec - 1] = self.board[er][ec + 1]
+                self.board[er][ec + 1] = "  "
+            else:  # Queen side
+                self.board[er][ec + 1] = self.board[er][ec - 2]
+                self.board[er][ec - 2] = "  "
 
     """
     Undo the last move made
